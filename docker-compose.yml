@@ -37,6 +37,7 @@ services:
       dockerfile: Dockerfile
     container_name: auraflow-orchestrator
     restart: unless-stopped
+    command: python -m uvicorn auraflow.main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: "postgresql+asyncpg://auraflow_user:auraflow_secure_password@postgres:5432/auraflow_db"
       REDIS_URL: "redis://redis:6379/0"
