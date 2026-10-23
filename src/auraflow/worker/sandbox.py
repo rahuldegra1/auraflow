@@ -71,8 +71,8 @@ class ContainerSandboxRunner:
                 cwd=str(tmp_path),
             )
 
-            stdout_chunks = []
-            stderr_chunks = []
+            stdout_chunks: list[tuple[str, str]] = []
+            stderr_chunks: list[tuple[str, str]] = []
 
             async def read_stream(stream, chunks_list, stream_name):
                 while True:
