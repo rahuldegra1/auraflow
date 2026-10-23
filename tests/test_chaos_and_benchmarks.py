@@ -1,6 +1,7 @@
 import asyncio
-import pytest
+
 import grpc
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
@@ -128,7 +129,7 @@ async def test_chaos_worker_drop_and_recovery(session_factory, ephemeral_grpc_wo
                 )
             ],
         )
-        run = await engine.submit_workflow(definition)
+        _ = await engine.submit_workflow(definition)
 
         claimed = await scheduler.claim_next_ready_node(worker_id="dying-worker")
         assert claimed is not None
