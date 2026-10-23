@@ -1,0 +1,67 @@
+name: AuraFlow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-suite:
+    name: Lint, Type Check & Test Suite
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: auraflow_test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install Build & Test Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy pytest pytest-asyncio anyio httpx
+          pip install -e .
+
+      - name: Run Ruff Linter
+        run: |
+          ruff check src/ tests/
+
+      - name: Run Static Type Verification (Mypy)
+        run: |
+          mypy src/auraflow --ignore-missing-imports
+
+      - name: Execute Full 29-Test Verification Suite
+        env:
+          DATABASE_URL: "postgresql+asyncpg://test_user:test_password@localhost:5432/auraflow_test_db"
+        run: |
+          pytest -v --durations=10

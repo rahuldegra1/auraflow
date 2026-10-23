@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package auraflow.worker;
+
+service WorkerService {
+  // Streams task execution progress, logs, and completion status
+  rpc ExecuteTask (TaskAssignment) returns (stream ExecutionStreamUpdate);
+  // Signals worker to abort a running task immediately
+  rpc CancelTask (CancelTaskRequest) returns (CancelTaskResponse);
+  // Periodic liveness check
+  rpc HealthCheck (PingRequest) returns (PingResponse);
+}
+
+message TaskAssignment {
+  string workflow_run_id = 1;
+  string node_id = 2;
+  string task_type = 3;
+  int32 timeout_seconds = 4;
+  string payload_json = 5;
+}
+
+enum ExecutionStage {
+  STAGE_UNSPECIFIED = 0;
+  STAGE_STARTING = 1;
+  STAGE_RUNNING = 2;
+  STAGE_COMPLETED = 3;
+  STAGE_FAILED = 4;
+  STAGE_CANCELLED = 5;
+}
+
+message ExecutionStreamUpdate {
+  string workflow_run_id = 1;
+  string node_id = 2;
+  ExecutionStage stage = 3;
+  string stdout_chunk = 4;
+  string stderr_chunk = 5;
+  int32 exit_code = 6;
+  string result_json = 7;
+  string error_message = 8;
+}
+
+message CancelTaskRequest {
+  string workflow_run_id = 1;
+  string node_id = 2;
+}
+
+message CancelTaskResponse {
+  bool acknowledged = 1;
+  string message = 2;
+}
+
+message PingRequest {
+  string worker_id = 1;
+}
+
+message PingResponse {
+  bool healthy = 1;
+  int32 active_tasks = 2;
+  int64 available_memory_bytes = 3;
+}
