@@ -48,7 +48,9 @@ async def grpc_worker_stub():
 
 
 @pytest.mark.asyncio
-async def test_successful_task_captures_logs_and_output(async_test_session: AsyncSession, grpc_worker_stub):
+async def test_successful_task_captures_logs_and_output(
+    async_test_session: AsyncSession, grpc_worker_stub
+):
     run = WorkflowRun(
         workflow_id="wf_log_test",
         status=WorkflowStatus.RUNNING.value,
@@ -81,7 +83,9 @@ async def test_successful_task_captures_logs_and_output(async_test_session: Asyn
 
 
 @pytest.mark.asyncio
-async def test_poison_pill_routes_to_dead_letter_queue(async_test_session: AsyncSession, grpc_worker_stub):
+async def test_poison_pill_routes_to_dead_letter_queue(
+    async_test_session: AsyncSession, grpc_worker_stub
+):
     run = WorkflowRun(
         workflow_id="wf_poison_test",
         status=WorkflowStatus.RUNNING.value,

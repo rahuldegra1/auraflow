@@ -31,9 +31,7 @@ class NodeStatus(str, Enum):
 class WorkflowRun(Base):
     __tablename__ = "workflow_runs"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     workflow_id: Mapped[str] = mapped_column(String(128), nullable=False)
     status: Mapped[str] = mapped_column(
         String(32), default=WorkflowStatus.PENDING.value, nullable=False
@@ -58,9 +56,7 @@ class WorkflowRun(Base):
 class NodeExecution(Base):
     __tablename__ = "node_executions"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     workflow_run_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("workflow_runs.id", ondelete="CASCADE"), nullable=False
     )

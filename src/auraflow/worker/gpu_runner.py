@@ -26,10 +26,13 @@ class GPUInferenceRunner:
         self.memory_manager.reserve_budget(required_bytes)
 
         snapshot = self.memory_manager.get_memory_snapshot()
-        yield "stdout", (
-            f"Hardware target: {snapshot.device_name} | "
-            f"Free VRAM: {snapshot.free_bytes / (1024 * 1024):.2f}MB | "
-            f"Budget reserved: {estimated_vram_mb}MB\n"
+        yield (
+            "stdout",
+            (
+                f"Hardware target: {snapshot.device_name} | "
+                f"Free VRAM: {snapshot.free_bytes / (1024 * 1024):.2f}MB | "
+                f"Budget reserved: {estimated_vram_mb}MB\n"
+            ),
         )
 
         try:
@@ -37,7 +40,15 @@ class GPUInferenceRunner:
 
             # 2. Simulated Token Streaming (or local model execution)
             generated_tokens = []
-            dummy_tokens = ["AuraFlow", " orchestrator", " processed", " task", " via", " local", " GPU."]
+            dummy_tokens = [
+                "AuraFlow",
+                " orchestrator",
+                " processed",
+                " task",
+                " via",
+                " local",
+                " GPU.",
+            ]
 
             for token in dummy_tokens:
                 await asyncio.sleep(0.04)  # Simulates token generation latency

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -48,9 +49,8 @@ class WorkflowScheduler:
                     newly_ready_nodes.append(node.node_id)
 
         # Check if the entire workflow is now complete
-        all_completed = (
-            len(node_records) > 0
-            and all(n.status == NodeStatus.COMPLETED.value for n in node_records.values())
+        all_completed = len(node_records) > 0 and all(
+            n.status == NodeStatus.COMPLETED.value for n in node_records.values()
         )
         if all_completed and run.status == WorkflowStatus.RUNNING.value:
             run.status = WorkflowStatus.COMPLETED.value
@@ -150,11 +150,7 @@ class WorkflowScheduler:
             node.status = NodeStatus.FAILED.value
             node.completed_at = datetime.now(timezone.utc)
             # Mark parent workflow as FAILED
-            wf_stmt = (
-                select(WorkflowRun)
-                .where(WorkflowRun.id == workflow_run_id)
-                .with_for_update()
-            )
+            wf_stmt = select(WorkflowRun).where(WorkflowRun.id == workflow_run_id).with_for_update()
             wf_res = await self.session.execute(wf_stmt)
             run = wf_res.scalar_one()
             run.status = WorkflowStatus.FAILED.value
@@ -195,7 +191,9 @@ class WorkflowScheduler:
                 node.error_message = f"Recovered from silent worker failure after {heartbeat_timeout_seconds}s timeout"
             else:
                 node.status = NodeStatus.FAILED.value
-                node.error_message = f"Heartbeat expired and maximum retries ({node.max_retries}) exhausted"
+                node.error_message = (
+                    f"Heartbeat expired and maximum retries ({node.max_retries}) exhausted"
+                )
 
         if recovered_node_ids:
             await self.session.commit()

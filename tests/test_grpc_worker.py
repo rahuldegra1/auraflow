@@ -42,10 +42,12 @@ async def test_worker_streaming_task_execution(grpc_server_and_client):
         node_id="node-extract",
         task_type="sandbox_exec",
         timeout_seconds=5,
-        payload_json=json.dumps({
-            "code": "OUTPUT['status'] = 'processed_ok'\nprint('Execution completed.')",
-            "params": {"input_file": "raw.csv"},
-        }),
+        payload_json=json.dumps(
+            {
+                "code": "OUTPUT['status'] = 'processed_ok'\nprint('Execution completed.')",
+                "params": {"input_file": "raw.csv"},
+            }
+        ),
     )
 
     updates = []

@@ -64,12 +64,9 @@ class WorkflowEngine:
         return run
 
     async def resolve_node_parameters(self, node: NodeExecution) -> dict[str, Any]:
-        stmt = (
-            select(NodeExecution)
-            .where(
-                NodeExecution.workflow_run_id == node.workflow_run_id,
-                NodeExecution.status == NodeStatus.COMPLETED.value,
-            )
+        stmt = select(NodeExecution).where(
+            NodeExecution.workflow_run_id == node.workflow_run_id,
+            NodeExecution.status == NodeStatus.COMPLETED.value,
         )
         res = await self.session.execute(stmt)
         completed_nodes = {n.node_id: (n.result_output or {}) for n in res.scalars().all()}

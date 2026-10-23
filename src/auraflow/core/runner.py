@@ -27,7 +27,9 @@ class WorkflowExecutionRunner:
             async with self.session_or_factory() as session:
                 return await self._execute_loop(session, workflow_run_id, poll_interval_s)
         else:
-            return await self._execute_loop(self.session_or_factory, workflow_run_id, poll_interval_s)
+            return await self._execute_loop(
+                self.session_or_factory, workflow_run_id, poll_interval_s
+            )
 
     async def _execute_loop(
         self, session: AsyncSession, workflow_run_id: str, poll_interval_s: float

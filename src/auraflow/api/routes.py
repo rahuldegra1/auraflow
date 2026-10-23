@@ -39,9 +39,7 @@ async def get_workflow_status(
     db: AsyncSession = Depends(get_db_session),
 ):
     stmt = (
-        select(WorkflowRun)
-        .where(WorkflowRun.id == run_id)
-        .options(selectinload(WorkflowRun.nodes))
+        select(WorkflowRun).where(WorkflowRun.id == run_id).options(selectinload(WorkflowRun.nodes))
     )
     res = await db.execute(stmt)
     run = res.scalar_one_or_none()

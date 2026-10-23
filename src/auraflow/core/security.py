@@ -6,10 +6,10 @@ from auraflow.core.exceptions import DAGValidationError
 
 # Patterns that represent dangerous shell or filesystem escapes
 DANGEROUS_PATTERNS = [
-    re.compile(r"\.\./"),               # Path traversal
-    re.compile(r";\s*rm\s+-rf"),        # Destructive shell deletion
+    re.compile(r"\.\./"),  # Path traversal
+    re.compile(r";\s*rm\s+-rf"),  # Destructive shell deletion
     re.compile(r"__import__\s*\(\s*['\"]os['\"]\s*\)\.system"),  # Subprocess breakout
-    re.compile(r"os\.system\s*\("),     # Direct shell invocation
+    re.compile(r"os\.system\s*\("),  # Direct shell invocation
     re.compile(r"subprocess\.Popen\s*\("),
 ]
 

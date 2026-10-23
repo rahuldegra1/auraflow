@@ -16,10 +16,7 @@ async def test_dynamic_batcher_groups_concurrent_requests():
 
     try:
         # Submit 3 concurrent tasks simultaneously
-        tasks = [
-            batcher.submit_prompt(f"req_{i}", f"Task prompt {i}")
-            for i in range(3)
-        ]
+        tasks = [batcher.submit_prompt(f"req_{i}", f"Task prompt {i}") for i in range(3)]
         results = await asyncio.gather(*tasks)
 
         assert len(results) == 3

@@ -1,6 +1,7 @@
 import asyncio
-from dataclasses import dataclass, field
 import time
+from dataclasses import dataclass, field
+
 from auraflow.worker.gpu_manager import GPUMemoryManager
 
 
@@ -49,7 +50,9 @@ class DynamicBatchScheduler:
             except (asyncio.CancelledError, Exception):
                 pass
 
-    async def submit_prompt(self, request_id: str, prompt: str, max_tokens: int = 64) -> BatchResponse:
+    async def submit_prompt(
+        self, request_id: str, prompt: str, max_tokens: int = 64
+    ) -> BatchResponse:
         req = BatchRequest(request_id=request_id, prompt=prompt, max_tokens=max_tokens)
         await self._queue.put(req)
         return await req.future

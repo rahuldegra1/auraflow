@@ -126,11 +126,13 @@ class AuraFlowWorkerServicer(worker_pb2_grpc.WorkerServiceServicer):
                     stage=worker_pb2.STAGE_COMPLETED,
                     exit_code=0,
                     stdout_chunk=f"Generated output: {response.generated_text} (latency: {response.latency_ms}ms)\n",
-                    result_json=json.dumps({
-                        "generated_text": response.generated_text,
-                        "token_count": response.token_count,
-                        "latency_ms": response.latency_ms,
-                    }),
+                    result_json=json.dumps(
+                        {
+                            "generated_text": response.generated_text,
+                            "token_count": response.token_count,
+                            "latency_ms": response.latency_ms,
+                        }
+                    ),
                 )
 
             else:

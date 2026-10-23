@@ -39,10 +39,7 @@ async def test_sandbox_executes_valid_code_and_captures_output():
 async def test_sandbox_kills_infinite_loops_on_timeout():
     runner = ContainerSandboxRunner()
     infinite_loop_code = (
-        "import time\n"
-        "print('Loop beginning...')\n"
-        "while True:\n"
-        "    time.sleep(0.1)\n"
+        "import time\nprint('Loop beginning...')\nwhile True:\n    time.sleep(0.1)\n"
     )
 
     exit_meta = {}

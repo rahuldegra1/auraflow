@@ -5,6 +5,7 @@ import torch
 
 try:
     import pynvml
+
     PYNVML_AVAILABLE = True
 except ImportError:
     PYNVML_AVAILABLE = False
@@ -37,7 +38,9 @@ class GPUMemoryManager:
                 pynvml.nvmlInit()
                 self._nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(device_index)
             except Exception as e:
-                logger.warning(f"Failed to initialize NVML: {e}. Falling back to PyTorch CUDA APIs.")
+                logger.warning(
+                    f"Failed to initialize NVML: {e}. Falling back to PyTorch CUDA APIs."
+                )
                 self._nvml_handle = None
         else:
             self._nvml_handle = None

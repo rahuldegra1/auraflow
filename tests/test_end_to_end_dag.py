@@ -47,7 +47,9 @@ async def live_worker_stub():
 
 
 @pytest.mark.asyncio
-async def test_heterogeneous_dag_execution_pipeline(async_test_session: AsyncSession, live_worker_stub):
+async def test_heterogeneous_dag_execution_pipeline(
+    async_test_session: AsyncSession, live_worker_stub
+):
     """
     Validates end-to-end execution of a heterogeneous pipeline:
     Node A (sandbox_exec) -> produces clean_metric
