@@ -3,6 +3,7 @@ import logging
 import os
 import signal
 import sys
+
 import grpc
 from sqlalchemy import select
 

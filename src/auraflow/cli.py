@@ -153,7 +153,7 @@ def main() -> None:
     if args.file:
         with open(args.file, "r") as f:
             data = json.load(f)
-        wf = WorkflowDefinition.model_validate(data)
+        WorkflowDefinition.model_validate(data)
         # execute wf using compiler and runner
 
 

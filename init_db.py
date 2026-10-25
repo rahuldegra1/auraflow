@@ -1,12 +1,13 @@
 import asyncio
-from auraflow.core.database import Base, engine
 
 # Explicitly import all models so SQLAlchemy's metadata registers them
 import auraflow.models
+from auraflow.core.database import Base, engine
+
 try:
-    import auraflow.models.workflow
-    import auraflow.models.task
     import auraflow.models.run
+    import auraflow.models.task
+    import auraflow.models.workflow
 except ImportError:
     pass
 

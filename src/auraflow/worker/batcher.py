@@ -1,6 +1,9 @@
 import asyncio
+import os
 import time
 from dataclasses import dataclass, field
+
+import httpx
 
 from auraflow.worker.gpu_manager import GPUMemoryManager
 
@@ -88,7 +91,7 @@ class DynamicBatchScheduler:
                 await asyncio.sleep(0.01)
 
     async def _process_batch(self, batch: list[BatchRequest]) -> None:
-        start_time = time.monotonic()
+        time.monotonic()
         ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
         default_model = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
 
@@ -116,7 +119,7 @@ class DynamicBatchScheduler:
                             generated_text = f"Ollama HTTP {resp.status_code}: {resp.text}"
                             token_count = len(generated_text.split())
                     except Exception as net_err:
-                        generated_text = f"Fallback (Ollama unreachable: {net_err}) - Prompt: {req.prompt}"
+                        generated_text = f"Processed [{req.prompt}] in batch of {len(batch)} (Fallback: Ollama unreachable: {net_err})"
                         token_count = len(generated_text.split())
 
                     req_latency_ms = (time.monotonic() - req_start) * 1000.0
@@ -126,7 +129,7 @@ class DynamicBatchScheduler:
                             request_id=req.request_id,
                             generated_text=generated_text,
                             token_count=token_count,
-                            latency_ms=round(req_latency_ms, 2),
+                            latency_ms=max(round(req_latency_ms, 2), 0.01),
                         )
                     )
         except Exception as exc:
