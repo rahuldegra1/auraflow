@@ -10,7 +10,6 @@ from typing import Any
 from auraflow.core.graph import DAGCompiler
 from auraflow.schemas.workflow import WorkflowDefinition
 
-
 SAMPLE_PIPELINE = {
     "workflow_id": "demo_heterogeneous_pipeline",
     "tasks": [
@@ -64,8 +63,8 @@ SAMPLE_PIPELINE = {
 def print_banner() -> None:
     banner = """
     ╔══════════════════════════════════════════════════════════════╗
-    ║        AuraFlow Distributed DAG Orchestrator CLI           ║
-    ║   Heterogeneous Compute: CPU Sandbox | GPU Batch Inference  ║
+    ║        AuraFlow Distributed DAG Orchestrator CLI             ║
+    ║   Heterogeneous Compute: CPU Sandbox | GPU Batch Inference   ║
     ╚══════════════════════════════════════════════════════════════╝
     """
     print(banner)
@@ -135,6 +134,14 @@ def main() -> None:
         help="Run an end-to-end sample heterogeneous DAG workflow simulation",
     )
 
+    # In src/auraflow/cli.py, update main() to accept --file:
+    parser.add_argument(
+        "--file",
+        "-f",
+        type=str,
+        help="Path to a JSON workflow definition file to execute",
+    )
+
     args = parser.parse_args()
 
     if args.example:
@@ -142,6 +149,12 @@ def main() -> None:
     else:
         parser.print_help()
         sys.exit(0)
+
+    if args.file:
+        with open(args.file, "r") as f:
+            data = json.load(f)
+        wf = WorkflowDefinition.model_validate(data)
+        # execute wf using compiler and runner
 
 
 if __name__ == "__main__":

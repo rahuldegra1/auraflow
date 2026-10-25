@@ -40,7 +40,6 @@ class DynamicBatchScheduler:
         if not self._running:
             self._running = True
             self._loop_task = asyncio.create_task(self._batch_processing_loop())
-
     async def stop(self) -> None:
         self._running = False
         if self._loop_task:
@@ -53,6 +52,8 @@ class DynamicBatchScheduler:
     async def submit_prompt(
         self, request_id: str, prompt: str, max_tokens: int = 64
     ) -> BatchResponse:
+        if not self._running:
+            await self.start()
         req = BatchRequest(request_id=request_id, prompt=prompt, max_tokens=max_tokens)
         await self._queue.put(req)
         return await req.future
@@ -88,24 +89,47 @@ class DynamicBatchScheduler:
 
     async def _process_batch(self, batch: list[BatchRequest]) -> None:
         start_time = time.monotonic()
-        try:
-            await asyncio.sleep(0.02)
-            total_duration_ms = (time.monotonic() - start_time) * 1000.0
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
+        default_model = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
 
-            for req in batch:
-                if not req.future.done():
-                    generated = f"Processed [{req.prompt}] in batch of {len(batch)}"
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                for req in batch:
+                    if req.future.done():
+                        continue
+
+                    req_start = time.monotonic()
+                    try:
+                        resp = await client.post(
+                            f"{ollama_base_url}/api/generate",
+                            json={
+                                "model": default_model,
+                                "prompt": req.prompt,
+                                "stream": False,
+                            },
+                        )
+                        if resp.status_code == 200:
+                            data = resp.json()
+                            generated_text = data.get("response", "").strip()
+                            token_count = data.get("eval_count", len(generated_text.split()))
+                        else:
+                            generated_text = f"Ollama HTTP {resp.status_code}: {resp.text}"
+                            token_count = len(generated_text.split())
+                    except Exception as net_err:
+                        generated_text = f"Fallback (Ollama unreachable: {net_err}) - Prompt: {req.prompt}"
+                        token_count = len(generated_text.split())
+
+                    req_latency_ms = (time.monotonic() - req_start) * 1000.0
+
                     req.future.set_result(
                         BatchResponse(
                             request_id=req.request_id,
-                            generated_text=generated,
-                            token_count=len(generated.split()),
-                            latency_ms=round(total_duration_ms, 2),
+                            generated_text=generated_text,
+                            token_count=token_count,
+                            latency_ms=round(req_latency_ms, 2),
                         )
                     )
         except Exception as exc:
             for req in batch:
                 if not req.future.done():
                     req.future.set_exception(exc)
-        finally:
-            self.memory_manager.clear_cache()

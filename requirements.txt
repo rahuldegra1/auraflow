@@ -1,5 +1,5 @@
 fastapi>=0.110.0
-uvicorn>=0.28.0
+uvicorn[standard]>=0.28.0
 pydantic>=2.6.0
 sqlalchemy[asyncio]>=2.0.28
 aiosqlite>=0.20.0
@@ -10,4 +10,4 @@ protobuf>=4.25.0
 prometheus-client>=0.20.0
 psutil>=5.9.8
 pynvml>=11.5.0
-torch>=2.1.0 --extra-index-url https://download.pytorch.org/whl/cpu128
+torch>=2.1.0 --extra-index-url https://download.pytorch.org/whl/cpu

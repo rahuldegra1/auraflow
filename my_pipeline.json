@@ -1,0 +1,38 @@
+{
+  "workflow_id": "math_and_summary_pipeline",
+  "tasks": [
+    {
+      "id": "generate_numbers",
+      "type": "sandbox_exec",
+      "params": {
+        "code": "OUTPUT['numbers'] = [x * 3 for x in range(1, 6)]",
+        "params": {}
+      },
+      "timeout_seconds": 10,
+      "max_retries": 1
+    },
+    {
+      "id": "compute_stats",
+      "type": "sandbox_exec",
+      "depends_on": ["generate_numbers"],
+      "params": {
+        "code": "nums = PARAMS.get('numbers', [])\nOUTPUT['sum'] = sum(nums)\nOUTPUT['count'] = len(nums)",
+        "params": {
+          "numbers": "{{generate_numbers.numbers}}"
+        }
+      },
+      "timeout_seconds": 10,
+      "max_retries": 1
+    },
+    {
+      "id": "model_inference",
+      "type": "gpu_inference",
+      "depends_on": ["compute_stats"],
+      "params": {
+        "prompt": "In one concise sentence, provide a statistical insight about a sample with count {{compute_stats.count}} and sum {{compute_stats.sum}}."
+      },
+      "timeout_seconds": 45,
+      "max_retries": 1
+    }
+  ]
+}

@@ -71,19 +71,30 @@ class WorkflowEngine:
         res = await self.session.execute(stmt)
         completed_nodes = {n.node_id: (n.result_output or {}) for n in res.scalars().all()}
 
-        resolved_params: dict[str, Any] = {}
         pattern = re.compile(r"\{\{([a-zA-Z0-9_\-]+)\.([a-zA-Z0-9_\-]+)\}\}")
 
-        for k, v in node.params.items():
-            if isinstance(v, str):
-                matches = pattern.findall(v)
-                new_str = v
+        def resolve_value(val: Any) -> Any:
+            if isinstance(val, dict):
+                return {k: resolve_value(v) for k, v in val.items()}
+            elif isinstance(val, list):
+                return [resolve_value(item) for item in val]
+            elif isinstance(val, str):
+                # 1. Exact match check: preserve native types (lists, ints, dicts)
+                exact_match = re.fullmatch(r"\{\{([a-zA-Z0-9_\-]+)\.([a-zA-Z0-9_\-]+)\}\}", val.strip())
+                if exact_match:
+                    dep_node_id, dep_field = exact_match.groups()
+                    if dep_node_id in completed_nodes and dep_field in completed_nodes[dep_node_id]:
+                        return completed_nodes[dep_node_id][dep_field]
+
+                # 2. Substring template substitution
+                matches = pattern.findall(val)
+                new_str = val
                 for dep_node_id, dep_field in matches:
                     if dep_node_id in completed_nodes and dep_field in completed_nodes[dep_node_id]:
                         replacement = str(completed_nodes[dep_node_id][dep_field])
                         new_str = new_str.replace(f"{{{{{dep_node_id}.{dep_field}}}}}", replacement)
-                resolved_params[k] = new_str
-            else:
-                resolved_params[k] = v
+                return new_str
+            return val
 
+        resolved_params = {k: resolve_value(v) for k, v in node.params.items()}
         return resolved_params
