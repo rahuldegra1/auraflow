@@ -38,6 +38,7 @@ async def main(run_id: str):
         await server.stop(grace=0)
         await servicer.stop()
 
+
 if __name__ == "__main__":
     target_id = sys.argv[1] if len(sys.argv) > 1 else "5543e1b9-2b2f-428b-859e-c3f07e0c3c16"
     asyncio.run(main(target_id))

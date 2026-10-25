@@ -43,6 +43,7 @@ class DynamicBatchScheduler:
         if not self._running:
             self._running = True
             self._loop_task = asyncio.create_task(self._batch_processing_loop())
+
     async def stop(self) -> None:
         self._running = False
         if self._loop_task:

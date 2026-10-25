@@ -80,7 +80,9 @@ class WorkflowEngine:
                 return [resolve_value(item) for item in val]
             elif isinstance(val, str):
                 # 1. Exact match check: preserve native types (lists, ints, dicts)
-                exact_match = re.fullmatch(r"\{\{([a-zA-Z0-9_\-]+)\.([a-zA-Z0-9_\-]+)\}\}", val.strip())
+                exact_match = re.fullmatch(
+                    r"\{\{([a-zA-Z0-9_\-]+)\.([a-zA-Z0-9_\-]+)\}\}", val.strip()
+                )
                 if exact_match:
                     dep_node_id, dep_field = exact_match.groups()
                     if dep_node_id in completed_nodes and dep_field in completed_nodes[dep_node_id]:
