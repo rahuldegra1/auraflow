@@ -95,6 +95,8 @@ async def execute_demo() -> None:
             print(f"     * [{task_id}] TYPE={task.type} STATUS=RUNNING...")
             await asyncio.sleep(0.4)
 
+            res: dict[str, Any] = {}
+
             if task.type == "sandbox_exec":
                 if task_id == "ingest_data":
                     res = {"raw_values": [14, 28, 42, 56, 70], "sensor_id": "alpha-9"}
